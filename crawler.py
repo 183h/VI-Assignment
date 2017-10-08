@@ -5,6 +5,10 @@ class Crawler(object):
 
         self.unvisited_urls.append(start_url)
 
+    def crawl(self):
+        pass
+
 
 if __name__ == '__main__':
     c = Crawler('http://www.imdb.com/genre/')
+    c.crawl()
