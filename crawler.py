@@ -30,6 +30,8 @@ class Crawler(object):
                     # link_joined = urljoin(link, )
                     # if self.base_url.match()
 
+            sleep(3)
+
 
 if __name__ == '__main__':
     c = Crawler('http://www.imdb.com/genre/')
