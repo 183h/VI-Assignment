@@ -25,8 +25,9 @@ class Crawler(object):
 
             for link in links_soup:
                 if 'href' in link.attrs:
-                    pass
-                    # print urljoin(self.base_url, link['href'])
+                    url_joined = urljoin(self.base_url, link['href'])
+                    if self.base_url_regexp.match(url_joined) is not None:
+                        pass
                     # link_joined = urljoin(link, )
                     # if self.base_url.match()
 
