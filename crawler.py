@@ -3,6 +3,7 @@ from urlparse import urljoin
 from time import sleep
 from bs4 import BeautifulSoup
 from re import compile
+from sys import argv
 
 
 class Crawler(object):
@@ -18,7 +19,7 @@ class Crawler(object):
 
     def crawl(self, limit):
         for url in self.unvisited_urls:
-            print "Crawling..."
+            print "Crawling {}...".format(url)
             self.visited_urls.add(url)
             response = urlopen(url)
 
@@ -52,4 +53,4 @@ class Crawler(object):
 if __name__ == '__main__':
     print "Started crawling..."
     c = Crawler('http://www.imdb.com/genre/')
-    c.crawl(20)
+    c.crawl(argv[1])
