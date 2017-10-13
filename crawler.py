@@ -4,6 +4,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from re import compile
 from sys import argv
+from parser import Parser
 
 
 class Crawler(object):
@@ -42,15 +43,16 @@ class Crawler(object):
                                     self.movie_urls.add(movie_url.group(0))
 
                                 if len(self.movie_urls) == limit:
-                                    for m in self.movie_urls:
-                                        print m
-                                    exit()
+                                    return
 
             print "Sleeping..."
-            sleep(5)
+            sleep(1)
 
 
 if __name__ == '__main__':
     print "Started crawling..."
     c = Crawler('http://www.imdb.com/genre/')
-    c.crawl(argv[1])
+    c.crawl(int(argv[1]))
+
+    p = Parser(c.movie_urls)
+    p.parse()
