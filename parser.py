@@ -1,8 +1,8 @@
 from urllib2 import urlopen
-from time import sleep
 from bs4 import BeautifulSoup
 import os
 from json import dumps
+from re import compile, sub
 
 
 class Parser(object):
@@ -18,9 +18,9 @@ class Parser(object):
 
         if value is not None:
             if ret_type == "text":
-                return value.text.strip()
+                return sub('[\s]{2,}', ' ', sub('[\n]', '', value.text.strip()))
             elif ret_type == "string":
-                return value.string
+                return sub('[\s]{2,}', ' ', sub('[\n]', '', value.string.strip()))
             elif ret_type == "element":
                 return value
         else:
@@ -91,11 +91,11 @@ class Parser(object):
             )
             json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
 
-            json_movie["datePublished"] = self.findItem(
-                soup,
-                "a",
-                {"title": "See more release dates"}
-            )
+            # json_movie["datePublished"] = self.findItem(
+            #     soup,
+            #     "a",
+            #     {"title": "See more release dates"}
+            # )
 
             json_movie["description"] = self.findItem(
                 soup,
@@ -117,8 +117,12 @@ class Parser(object):
                 ret_type="element"
             )
 
-            creators = plot_summary[0].find_all('span', {"itemprop": "creator"})
-            json_movie["creators"] = " ".join([creator.text.strip() for creator in creators])
+            json_movie["creators"] = ""
+            if plot_summary:
+                creators = plot_summary[0].find_all('span', {"itemprop": "creator"})
+                json_movie["creators"] = " ".join(
+                    [creator.text.strip() for creator in creators]
+                )
 
             stars = self.findItem(
                 soup,
@@ -129,11 +133,12 @@ class Parser(object):
             )
             json_movie["stars"] = " ".join([star.text.strip() for star in stars])
 
-            json_movie["awards"] = self.findItem(
+            awards = self.findItem(
                 soup,
                 "span",
                 {"itemprop": "awards"}
             )
+            json_movie["awards"] = awards
 
             actors = self.findItem(
                 soup,
@@ -144,7 +149,7 @@ class Parser(object):
             )
             json_movie["actors"] = ", ".join([actor.text.strip() for actor in actors])
 
-            titleStoryLine = self.findItem(
+            title_story_line = self.findItem(
                 soup,
                 "div",
                 {"id": "titleStoryLine"},
@@ -152,14 +157,14 @@ class Parser(object):
             )
 
             plot = self.findItem(
-                titleStoryLine,
+                title_story_line,
                 "div",
                 {"itemprop": "description"},
             )
             json_movie["plot"] = plot
 
             keywords = self.findItem(
-                titleStoryLine,
+                title_story_line,
                 "span",
                 {"itemprop": "keywords"},
                 find_all=True,
@@ -167,4 +172,39 @@ class Parser(object):
             )
             json_movie["keywords"] = ", ".join([keyword.text.strip() for keyword in keywords])
 
-            print dumps(json_movie, indent=4)
+            title_details = self.findItem(
+                soup,
+                "div",
+                {"id": "titleDetails"},
+                ret_type="element"
+            )
+
+            title_details_divs = self.findItem(
+                title_details,
+                "div",
+                {"class": "txt-block"},
+                find_all=True,
+                ret_type="element"
+            )
+
+            json_movie["country"] = ""
+            country_block = [i for i in title_details_divs if i.find('h4', text=compile('Country:.*'))]
+            if country_block:
+                country = self.findItem(
+                    country_block[0],
+                    "a",
+                    {"itemprop": "url"},
+                )
+                json_movie["country"] = country
+
+            json_movie["language"] = ""
+            language_block = [i for i in title_details_divs if i.find('h4', text=compile('Language:.*'))]
+            if language_block:
+                language = self.findItem(
+                    language_block[0],
+                    "a",
+                    {"itemprop": "url"},
+                )
+                json_movie["language"] = language
+
+            # print dumps(json_movie, indent=4)
