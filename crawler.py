@@ -54,5 +54,6 @@ if __name__ == '__main__':
     c = Crawler('http://www.imdb.com/genre/')
     c.crawl(int(argv[1]))
 
+    print "Started parsing..."
     p = Parser(c.movie_urls)
     p.parse()
