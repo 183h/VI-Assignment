@@ -9,6 +9,7 @@ class Parser(object):
     def __init__(self, movies):
         self.movies = movies
         self.cwd = os.getcwd() + "/movies/"
+        self.date = compile('[0-9]{1,2} (January|February|March|April|June|July|August|September|October|November|December) [0-9]{4}')
 
     def findItem(self, soup, tag, attr, find_all=False, ret_type="text"):
         if not find_all:
@@ -207,4 +208,11 @@ class Parser(object):
                 )
                 json_movie["language"] = language
 
-            # print dumps(json_movie, indent=4)
+            json_movie["releaseDate"] = ""
+            release_date_block = [i for i in title_details_divs if i.find('h4', text=compile('Release Date:.*'))]
+            if release_date_block:
+                release_date = self.date.search(release_date_block[0].text)
+                if release_date:
+                    json_movie["releaseDate"] = release_date.group()
+
+            print dumps(json_movie, indent=4)
