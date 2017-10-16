@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import os
 from json import dumps
 from re import compile, sub
+from elasticsearch import Elasticsearch
+from datetime import datetime
 
 
 class Parser(object):
@@ -10,6 +12,7 @@ class Parser(object):
         self.movies = movies
         self.cwd = os.getcwd() + "/movies/"
         self.date = compile('[0-9]{1,2} (January|February|March|April|June|July|August|September|October|November|December) [0-9]{4}')
+        self.es = Elasticsearch()
 
     def findItem(self, soup, tag, attr, find_all=False, ret_type="text"):
         if not find_all:
@@ -28,6 +31,7 @@ class Parser(object):
             return None
 
     def parse(self):
+        id_ = 0
         for movie in self.movies:
             json_movie = {}
             title_id = movie.split("/")[4]
@@ -41,26 +45,35 @@ class Parser(object):
                 file.write(response.read())
                 file.seek(0, 0)
 
-            soup = BeautifulSoup(file.read(), 'lxml')
+            soup = BeautifulSoup(file.read(), 'lxml', from_encoding="utf-8")
             json_movie["id"] = title_id
 
-            json_movie["ratingValue"] = self.findItem(
+            json_movie["ratingValue"] = None
+            ratingValue = self.findItem(
                 soup,
                 "span",
                 {"itemprop": "ratingValue"}
             )
+            if ratingValue is not None:
+                json_movie["ratingValue"] = float(ratingValue)
 
-            json_movie["ratingCount"] = self.findItem(
+            json_movie["ratingCount"] = None
+            ratingCount = self.findItem(
                 soup,
                 "span",
                 {"itemprop": "ratingCount"}
             )
+            if ratingCount is not None:
+                json_movie["ratingCount"] = int(sub(',', '', ratingCount))
 
             json_movie["name"] = self.findItem(
                 soup,
                 "h1",
                 {"itemprop": "name"}
             )
+            # print type(json_movie["name"].encode('utf-8'))
+            # print json_movie["name"].encode('utf-8')
+
 
             json_movie["titleYear"] = self.findItem(
                 soup,
@@ -104,11 +117,13 @@ class Parser(object):
                 {"itemprop": "description"}
             )
 
-            json_movie["director"] = self.findItem(
+            director = self.findItem(
                 soup,
                 "span",
                 {"itemprop": "director"}
             )
+            if director is not None:
+                json_movie["director"] = director
 
             plot_summary = self.findItem(
                 soup,
@@ -139,7 +154,8 @@ class Parser(object):
                 "span",
                 {"itemprop": "awards"}
             )
-            json_movie["awards"] = awards
+            if awards is not None:
+                json_movie["awards"] = awards
 
             actors = self.findItem(
                 soup,
@@ -208,11 +224,16 @@ class Parser(object):
                 )
                 json_movie["language"] = language
 
-            json_movie["releaseDate"] = ""
+            json_movie["releaseDate"] = None
             release_date_block = [i for i in title_details_divs if i.find('h4', text=compile('Release Date:.*'))]
             if release_date_block:
                 release_date = self.date.search(release_date_block[0].text)
                 if release_date:
-                    json_movie["releaseDate"] = release_date.group()
+                    releaseDate = str(datetime.strptime(release_date.group(), "%d %B %Y")).split(" ")
+                    json_movie["releaseDate"] = releaseDate[0]
 
-            print dumps(json_movie, indent=4)
+            # print dumps(json_movie, indent=4, ensure_ascii=False, encoding="utf-8")
+
+            self.es.index(index="imdb", doc_type="movie", id=id_, body=dumps(json_movie, ensure_ascii=False, encoding="utf-8"))
+
+            id_ = id_ + 1
