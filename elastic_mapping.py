@@ -1,4 +1,4 @@
-from elasticsearch_dsl import Keyword, Mapping, Text, Date, Integer, Float
+from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.connections import connections
 
 connections.create_connection(hosts=['localhost'])
