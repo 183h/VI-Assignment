@@ -13,16 +13,15 @@
 	</script>
 </head>
 
+<form action="/search" method="POST">
 <div class="container">
   <div class="row">
     <div class="col"></div>
     <div class="col" style="padding-top: 30px; padding-bottom: 20px">
-		<form action="/search" method="POST">
 			<div class="input-group input-group-lg">
-  				<span class="input-group-addon" id="basic-addon1">Search: </span>
-  				<input type="text" class="form-control" aria-describedby="basic-addon1" name="term" value="{{ value }}">
+  				<span class="input-group-addon" id="i1">Search: </span>
+  				<input type="text" class="form-control" aria-describedby="basic-addon1" name="q" value="{{ q }}">
 			</div>
-		</form>
     </div>
     <div class="col"></div>
   </div>
@@ -31,28 +30,27 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col">
-    	<b>Order by:</b>
-		<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-		  <div class="btn-group" role="group">
-		    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		      Dropdown
-		    </button>
-		    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-		      <a class="dropdown-item" href="#">Rating value</a>
-		      <a class="dropdown-item" href="#">Rating count</a>
-		    </div>
-		  </div>
-		  <div class="btn-group" role="group">
-		    <button id="btnGroupDrop2" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		      Dropdown
-		    </button>
-		    <div class="dropdown-menu" aria-labelledby="btnGroupDrop2">
-		      <a class="dropdown-item" href="#">Ascending</a>
-		      <a class="dropdown-item" href="#">Descending</a>
-		    </div>
-		  </div>
-		</div>
-    <hr />
+    	<label> <b>Order by:</b> </label>
+    	<div class="form-check">
+    	  <label class="form-check-label">
+    	    <input class="form-check-input" type="radio" name="o" id="r1" value="asc" {% if o == "asc" %} checked {% endif %}>
+    	    Rating value ascending
+    	  </label>
+    	</div>
+    	<div class="form-check">
+    	  <label class="form-check-label">
+    	    <input class="form-check-input" type="radio" name="o" id="r2" value="desc" {% if o == "desc" %} checked {% endif %}>
+    	    Rating value descending
+    	  </label>
+    	</div>
+    	<hr />
+
+    	<label> <b>Aggregations:</b> </label>
+    	<ul>
+    	    {% for a in aggs %}
+    	  		<li>{{ a["key"] }} ({{ a["doc_count"] }})</li>
+    		{% endfor %}
+    	</ul>
     </div>
     
     <div class="col-8">
@@ -62,3 +60,4 @@
     <div class="col"></div>
   </div>
 </div>
+</form>
