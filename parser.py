@@ -96,6 +96,7 @@ class Parser(object):
                 {"itemprop": "duration"}
             )
 
+            json_movie["genres"] = ""
             genres = self.findItem(
                 soup,
                 "span",
@@ -103,7 +104,8 @@ class Parser(object):
                 find_all=True,
                 ret_type="element"
             )
-            json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
+            if genres is not None:
+                json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
 
             # json_movie["datePublished"] = self.findItem(
             #     soup,
@@ -140,6 +142,7 @@ class Parser(object):
                     [creator.text.strip() for creator in creators]
                 )
 
+            json_movie["stars"] = ""
             stars = self.findItem(
                 soup,
                 "span",
@@ -147,7 +150,8 @@ class Parser(object):
                 find_all=True,
                 ret_type="element"
             )
-            json_movie["stars"] = " ".join([star.text.strip() for star in stars])
+            if stars is not None:
+                json_movie["stars"] = " ".join([star.text.strip() for star in stars])
 
             awards = self.findItem(
                 soup,
@@ -157,6 +161,7 @@ class Parser(object):
             if awards is not None:
                 json_movie["awards"] = awards
 
+            json_movie["actors"] = ""
             actors = self.findItem(
                 soup,
                 "td",
@@ -164,7 +169,8 @@ class Parser(object):
                 find_all=True,
                 ret_type="element"
             )
-            json_movie["actors"] = ", ".join([actor.text.strip() for actor in actors])
+            if actors is not None:
+                json_movie["actors"] = ", ".join([actor.text.strip() for actor in actors])
 
             title_story_line = self.findItem(
                 soup,
@@ -173,21 +179,24 @@ class Parser(object):
                 ret_type="element"
             )
 
-            plot = self.findItem(
-                title_story_line,
-                "div",
-                {"itemprop": "description"},
-            )
-            json_movie["plot"] = plot
+            if title_story_line is not None:
+                plot = self.findItem(
+                    title_story_line,
+                    "div",
+                    {"itemprop": "description"},
+                )
+                json_movie["plot"] = plot
 
-            keywords = self.findItem(
-                title_story_line,
-                "span",
-                {"itemprop": "keywords"},
-                find_all=True,
-                ret_type="element"
-            )
-            json_movie["keywords"] = ", ".join([keyword.text.strip() for keyword in keywords])
+                json_movie["keywords"] = ""
+                keywords = self.findItem(
+                    title_story_line,
+                    "span",
+                    {"itemprop": "keywords"},
+                    find_all=True,
+                    ret_type="element"
+                )
+                if keywords is not None:
+                    json_movie["keywords"] = ", ".join([keyword.text.strip() for keyword in keywords])
 
             title_details = self.findItem(
                 soup,
@@ -196,13 +205,14 @@ class Parser(object):
                 ret_type="element"
             )
 
-            title_details_divs = self.findItem(
-                title_details,
-                "div",
-                {"class": "txt-block"},
-                find_all=True,
-                ret_type="element"
-            )
+            if title_details is not None:
+                title_details_divs = self.findItem(
+                    title_details,
+                    "div",
+                    {"class": "txt-block"},
+                    find_all=True,
+                    ret_type="element"
+                )
 
             json_movie["country"] = ""
             country_block = [i for i in title_details_divs if i.find('h4', text=compile('Country:.*'))]
