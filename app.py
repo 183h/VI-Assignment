@@ -4,25 +4,23 @@ import os
 from json import dumps
 
 app = Flask(__name__)
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['STATIC_FOLDER'] = os.path.join(basedir, 'bower_components')
 
 @app.route("/")
 def main():
-    return render_template('main.html', orderBy="ratingValue")
+    return render_template('main.html', o="desc")
 
 @app.route("/search", methods=['GET', 'POST'])
 def search():
-    q = request.form.get("term", "")
-    orderBy = request.form.get("orderBy", "neni")
+    q = request.form.get('q', default = "", type = str)
+    o = request.form.get('o', default = "desc", type = str)
     es = Elasticsearch()
 
     res = es.search(index="imdb", doc_type="movie",
         body={
             "sort" : [
                 { 
-                    orderBy : {
-                        "order" : "desc"
+                    "ratingValue" : {
+                        "order" : o
                     }
                 },
                 "_score"
@@ -48,7 +46,7 @@ def search():
             "aggs" : {
                 "by_language" : {
                     "terms" : {
-                        "field" : "",
+                        "field" : "country",
                         "size" : 5
                     }
                 }
@@ -56,6 +54,12 @@ def search():
         }
     )
 
-    # print dumps(res, indent=4)
+    print dumps(res, indent=4)
+    print q, o
 
-    return render_template('hits.html', data=res["hits"]["hits"], value=q, orderBy=orderBy)
+    return render_template(
+        'hits.html',
+         data=res["hits"]["hits"]
+         , q=q, o=o,
+          aggs=res["aggregations"]["by_language"]["buckets"]
+    )
