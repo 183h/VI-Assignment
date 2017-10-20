@@ -17,6 +17,7 @@ def search():
     a = request.form.get('a', default=None, type=str)
     es = Elasticsearch()
     aggs_filter = {}
+    sug = {}
 
     if a is not None:
         aggs_filter = {
@@ -66,11 +67,38 @@ def search():
                     }
                     )
 
+    if res["hits"]["total"] == 0:
+        res_sug = es.search(index="imdb", doc_type="movie",
+                            body={
+                                "suggest": {
+                                    "text": q,
+                                    "simple_phrase": {
+                                        "phrase": {
+                                            "field": "plot.trigram",
+                                            "size": 10,
+                                            "gram_size": 3,
+                                            "direct_generator": [{
+                                                "field": "plot.trigram",
+                                                "suggest_mode": "always"
+                                            }],
+                                            "highlight": {
+                                                "pre_tag": '<span style="background-color: yellow">',
+                                                "post_tag": "</span>"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            )
+
+        sug = res_sug["suggest"]["simple_phrase"][0]["options"]
+
     # print dumps(res, indent=4)
-    print q, o, a
+    # print q, o, a
 
     return render_template(
         'hits.html',
         data=res["hits"]["hits"], q=q, o=o,
-        aggs=res["aggregations"]["by_language"]["buckets"]
+        aggs=res["aggregations"]["by_language"]["buckets"],
+        sug=sug
     )
