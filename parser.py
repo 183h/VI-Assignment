@@ -71,9 +71,6 @@ class Parser(object):
                 "h1",
                 {"itemprop": "name"}
             )
-            # print type(json_movie["name"].encode('utf-8'))
-            # print json_movie["name"].encode('utf-8')
-
 
             json_movie["titleYear"] = self.findItem(
                 soup,
