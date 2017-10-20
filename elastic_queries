@@ -1,5 +1,26 @@
 PUT imdb
 {
+  	"settings": {
+    	"index": {
+      		"number_of_shards": 1,
+      		"analysis": {
+        		"analyzer": {
+          			"trigram": {
+            			"type": "custom",
+            			"tokenizer": "standard",
+            			"filter": ["standard", "shingle"]
+          			}
+        		},
+        		"filter": {
+          			"shingle": {
+            			"type": "shingle",
+            			"min_shingle_size": 2,
+            			"max_shingle_size": 5
+          			}
+        		}
+    		}
+    	}
+  	},
 	"mappings": {
     	"movie": {
       		"properties": {
@@ -9,7 +30,13 @@ PUT imdb
 		        },
         		"plot": {
         			"type": "text",
-		        	"analyzer" : "english"
+		        	"analyzer" : "english",
+		        	"fields": {
+            			"trigram": {
+              				"type": "text",
+              				"analyzer": "trigram"
+            			}
+            		}
         		},
         		"genres": {
         			"type": "text",
