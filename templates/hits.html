@@ -1,6 +1,8 @@
 {% extends "main.html" %}
 {% block body %}
+
 {% if data %}
+
 <div class="jumbotron jumbotron-fluid">
     <ul>
 		{% for hit in data %}
@@ -20,5 +22,22 @@
 		{% endfor %}
 	</ul>
 </div>
+
+{% else %}
+
+<div class="jumbotron jumbotron-fluid">
+	<h2>&nbsp;&nbsp;No results!!!</h2>
+	<br>
+	<h3>&nbsp;&nbsp;Try:</h3>
+	<br>
+	<ul>
+  	{% for value in sug %}
+  		<li>{{ value["highlighted"]|safe }}</li>
+  	{% endfor %}
+	</ul>
+
+</div>
+
 {% endif %}
+
 {% endblock %}
