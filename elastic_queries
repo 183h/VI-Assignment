@@ -1,0 +1,71 @@
+PUT imdb
+{
+	"mappings": {
+    	"movie": {
+      		"properties": {
+		        "name": {
+		        	"type": "text",
+		        	"analyzer" : "english"
+		        },
+        		"plot": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"genres": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"director": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"keywords": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"awards": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"stars": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"duration": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"actors": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"creators": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+        		"description": {
+        			"type": "text",
+		        	"analyzer" : "english"
+        		},
+
+        		"ratingValue": {
+        			"type": "float"
+        		},
+        		"ratingCount": {
+        			"type": "integer"
+        		},
+
+        		"language": {
+        			"type": "keyword"
+        		},
+        		"country": {
+        			"type": "keyword"
+        		},
+
+        		"releaseDate": {
+        			"type": "date"
+        		}
+      		}
+    	}
+  	}
+}
