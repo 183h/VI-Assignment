@@ -38,13 +38,13 @@
     	<label> <b>Order by:</b> </label>
     	<div class="form-check">
     	  <label class="form-check-label">
-    	    <input onclick="document.getElementById('f1').submit();" class="form-check-input" type="radio" name="o" id="r1" value="asc" {% if o == "asc" %} checked {% endif %}>
+    	    <input onclick="$('#f1').submit();" class="form-check-input" type="radio" name="o" id="r1" value="asc" {% if o == "asc" %} checked {% endif %}>
     	    Rating value ascending
     	  </label>
     	</div>
     	<div class="form-check">
     	  <label class="form-check-label">
-    	    <input onclick="document.getElementById('f1').submit();" class="form-check-input" type="radio" name="o" id="r2" value="desc" {% if o == "desc" %} checked {% endif %}>
+    	    <input onclick="$('#f1').submit();" class="form-check-input" type="radio" name="o" id="r2" value="desc" {% if o == "desc" %} checked {% endif %}>
     	    Rating value descending
     	  </label>
     	</div>
@@ -55,7 +55,7 @@
     	<div class="bloc">
     		<select multiple name="a" size="12">
     	    	{% for a in aggs %}
- 					<li><option onclick="document.getElementById('f1').submit();" value="{{ a['key'] }}">{{ a["key"] }} ({{ a["doc_count"] }})</option>
+ 					<li><option onclick="$('#f1').submit();" value="{{ a['key'] }}">{{ a["key"] }} ({{ a["doc_count"] }})</option>
     			{% endfor %}
     		</select>
     	</div>
