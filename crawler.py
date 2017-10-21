@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from re import compile
 from sys import argv
 from parser import Parser
+from elasticsearch import Elasticsearch
 
 
 class Crawler(object):
@@ -45,6 +46,7 @@ class Crawler(object):
                                 if len(self.movie_urls) == limit:
                                     return
 
+            print "{} movies found...".format(len(self.movie_urls))
             print "Sleeping..."
             sleep(1)
 
@@ -53,7 +55,8 @@ if __name__ == '__main__':
     print "Started crawling..."
     c = Crawler('http://www.imdb.com/genre/')
     c.crawl(int(argv[1]))
+    es = Elasticsearch()
 
     print "Started parsing..."
-    p = Parser(c.movie_urls)
+    p = Parser(c.movie_urls, es)
     p.parse()
