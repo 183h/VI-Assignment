@@ -1,43 +1,42 @@
 {% extends "main.html" %}
 {% block body %}
 
-{% if data %}
-
-<div class="jumbotron jumbotron-fluid">
-    <ul>
-		{% for hit in data %}
-  			<li><b>Name:</b> {{ hit["_source"]["name"]}}</li>
-  			<li><b>Rating value:</b> {{ hit["_source"]["ratingValue"]}}</li>
-  			<li><b>Rating count:</b> {{ hit["_source"]["ratingCount"]}}</li>
-
+<div class="jumbotron jumbotron-fluid" id="jumbo">
+	{% if data %}
+		<h2><b>Number of results: </b>{{ total }}</h2>
+		<br>
+    	<ul>
+			{% for hit in data %}
+  				<li><b>Name:</b> {{ hit["_source"]["name"]}}</li>
+  				<li><b>Rating value:</b> {{ hit["_source"]["ratingValue"]}}</li>
+  				<li><b>Rating count:</b> {{ hit["_source"]["ratingCount"]}}</li>
 	
+				<ul>
+  				{% for key, value in hit["highlight"].iteritems() %}
+  					<li><b>{{ key.title() }}</b> : {{ value[0]|safe }}</li>
+  				{% endfor %}
+				</ul>
+
+				<br>
+				<hr />
+				<br>
+			{% endfor %}
+		</ul>
+
+	{% else %}
+
+		<h2>&nbsp;&nbsp;No results!!!</h2>
+		{% if sug%}
+			<br>
+			<h3>&nbsp;&nbsp;Try:</h3>
+			<br>
 			<ul>
-  			{% for key, value in hit["highlight"].iteritems() %}
-  				<li><b>{{ key.title() }}</b> : {{ value[0]|safe }}</li>
-  			{% endfor %}
+  				{% for value in sug %}
+  					<li>{{ value["highlighted"]|safe }}</li>
+  				{% endfor %}
 			</ul>
-
-			<br>
-			<br>
-		{% endfor %}
-	</ul>
+		{% endif %}
+	{% endif %}
 </div>
-
-{% else %}
-
-<div class="jumbotron jumbotron-fluid">
-	<h2>&nbsp;&nbsp;No results!!!</h2>
-	<br>
-	<h3>&nbsp;&nbsp;Try:</h3>
-	<br>
-	<ul>
-  	{% for value in sug %}
-  		<li>{{ value["highlighted"]|safe }}</li>
-  	{% endfor %}
-	</ul>
-
-</div>
-
-{% endif %}
 
 {% endblock %}
