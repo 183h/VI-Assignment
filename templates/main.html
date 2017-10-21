@@ -4,18 +4,48 @@
   	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" media="screen" href = "{{ url_for('static', filename='bootstrap/dist/css/bootstrap.min.css') }}">
+	<link rel="stylesheet" media="screen" href = "{{ url_for('static', filename='jquery-ui/themes/base/jquery-ui.min.css') }}">
 
-	<script type="text/javascript" src="{{url_for('static', filename='jquery/dist/jquery.slim.min.js')}}">
+	<script type="text/javascript" src="{{url_for('static', filename='jquery/dist/jquery.min.js')}}">
 	</script>
 	<script type="text/javascript" src="{{url_for('static', filename='popper.js/dist/umd/popper.min.js')}}">
 	</script>
 	<script type="text/javascript" src="{{url_for('static', filename='bootstrap/dist/js/bootstrap.min.js')}}">
 	</script>
+	<script type="text/javascript" src="{{url_for('static', filename='jquery-ui/jquery-ui.min.js')}}">
+	</script>
 
 	<style type="text/css">
 		.bloc { display:inline-block; vertical-align:top; overflow:hidden; border:solid grey transparent 1px; }
 		.bloc select { padding:10px; margin:-5px -20px -5px -5px; width: 200px}
+		#jumbo {
+  			padding: 50px;
+		}
 	</style>
+
+	 <script>
+  		$( function() {
+    		$( "#slider-range" ).slider({
+      			range: true,
+      			min: 0,
+      			max: 10,
+      			values: [ {{ rf }}, {{ rt }} ],
+      			slide: function( event, ui ) {
+        			$( "#amount" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+        			$('#f1').submit();
+      			}
+    		});
+    		$( "#amount" ).val( $( "#slider-range" ).slider( "values", 0 ) +
+      			" - " + $( "#slider-range" ).slider( "values", 1 ) );
+  		} );
+
+  		$(document).keypress(function(event) {
+    		if (event.which == 13) {
+        		event.preventDefault();
+        		$("#f1").submit();
+    		}
+		});
+  </script>
 </head>
 
 <form action="/search" method="POST" id="f1">
@@ -47,26 +77,42 @@
     	    <input onclick="$('#f1').submit();" class="form-check-input" type="radio" name="o" id="r2" value="desc" {% if o == "desc" %} checked {% endif %}>
     	    Rating value descending
     	  </label>
-    	</div>
-    	<hr />
+    	</div>    	
 
     	{% if aggs %}
+    	<hr />
     	<label> <b>Aggregation by country:</b> </label><br>
     	<div class="bloc">
     		<select multiple name="a" size="12">
-    	    	{% for a in aggs %}
- 					<li><option onclick="$('#f1').submit();" value="{{ a['key'] }}">{{ a["key"] }} ({{ a["doc_count"] }})</option>
+    	    	{% for ag in aggs %}
+ 					<li><option onclick="$('#f1').submit();" value="{{ ag['key'] }}" {% if a == ag['key'] %} selected {% endif %}>{{ ag["key"] }} ({{ ag["doc_count"] }})</option>
     			{% endfor %}
     		</select>
     	</div>
+    	
     	{% endif %}
+    	
+		<hr />
+    	<p>
+	  		<label for="amount">Rating value range:</label>
+	  		<input type="text" id="amount" readonly name="r" style="border:0; color:#f6931f; font-weight:bold;">
+		</p>
+		<div id="slider-range"></div>
     </div>
     
     <div class="col-8">
     {% block body %}{% endblock %}
     </div>
     
-    <div class="col"></div>
+    <div class="col">
+    	Stats:
+
+    	<ul>
+  			{% for key, value in hit["highlight"].iteritems() %}
+  				<li><b>{{ key.title() }}</b> : {{ value[0]|safe }}</li>
+  			{% endfor %}
+		</ul>
+    </div>
   </div>
 </div>
 </form>
