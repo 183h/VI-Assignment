@@ -3,16 +3,16 @@ from bs4 import BeautifulSoup
 import os
 from json import dumps
 from re import compile, sub
-from elasticsearch import Elasticsearch
 from datetime import datetime
+from elasticsearch import helpers
 
 
 class Parser(object):
-    def __init__(self, movies):
+    def __init__(self, movies, es):
         self.movies = movies
         self.cwd = os.getcwd() + "/movies/"
         self.date = compile('[0-9]{1,2} (January|February|March|April|June|July|August|September|October|November|December) [0-9]{4}')
-        self.es = Elasticsearch()
+        self.es = es
 
     def findItem(self, soup, tag, attr, find_all=False, ret_type="text"):
         if not find_all:
@@ -31,17 +31,23 @@ class Parser(object):
             return None
 
     def parse(self):
+        actions = []
         id_ = 0
         for movie in self.movies:
             json_movie = {}
             title_id = movie.split("/")[4]
             file_path = self.cwd + title_id
 
+            print "Id: {} | TitleId: {}".format(id_, title_id)
+
             if os.path.isfile(file_path):
                 file = open(file_path, "r")
             else:
                 file = open(file_path, "w+")
-                response = urlopen(movie)
+                try:
+                    response = urlopen(movie)
+                except:
+                    continue
                 file.write(response.read())
                 file.seek(0, 0)
 
@@ -103,12 +109,6 @@ class Parser(object):
             )
             if genres is not None:
                 json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
-
-            # json_movie["datePublished"] = self.findItem(
-            #     soup,
-            #     "a",
-            #     {"title": "See more release dates"}
-            # )
 
             json_movie["description"] = self.findItem(
                 soup,
@@ -240,7 +240,17 @@ class Parser(object):
                     json_movie["releaseDate"] = releaseDate[0]
 
             # print dumps(json_movie, indent=4, ensure_ascii=False, encoding="utf-8")
+            # self.es.index(index="imdb", doc_type="movie", id=id_, body=dumps(json_movie, ensure_ascii=False, encoding="utf-8"))
 
-            self.es.index(index="imdb", doc_type="movie", id=id_, body=dumps(json_movie, ensure_ascii=False, encoding="utf-8"))
+            actions.append(
+                {
+                    '_index': 'imdb',
+                    '_type': 'movie',
+                    '_id': id_,
+                    '_source': dumps(json_movie, ensure_ascii=False, encoding="utf-8")
+                }
+            )
 
             id_ = id_ + 1
+
+        helpers.bulk(self.es, actions, chunk_size=1000, request_timeout=200)
