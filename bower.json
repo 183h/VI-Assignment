@@ -12,6 +12,7 @@
     "tests"
   ],
   "dependencies": {
-    "bootstrap": "v4.0.0-beta"
+    "bootstrap": "v4.0.0-beta",
+    "jquery-ui": "jqueryui#^1.12.1"
   }
 }
