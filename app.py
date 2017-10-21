@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def main():
-    return render_template('main.html', o="asc")
+    return render_template('main.html', o="asc", rf=0, rt=10)
 
 
 @app.route("/search", methods=['GET', 'POST'])
@@ -15,6 +15,8 @@ def search():
     q = request.form.get('q', default="", type=str)
     o = request.form.get('o', default="desc", type=str)
     a = request.form.get('a', default=None, type=str)
+    r = request.form.get('r', default="", type=str)
+
     es = Elasticsearch()
     aggs_filter = {}
     sug = {}
@@ -25,7 +27,8 @@ def search():
                 'country': a
             }
         }
-        print aggs_filter
+
+    rf, rt = r.split(" - ")
 
     res = es.search(index="imdb", doc_type="movie",
                     body={
@@ -39,13 +42,20 @@ def search():
                         ],
                         "query": {
                             "bool": {
-                                "must": {
-                                    "multi_match": {
-                                        "query": q,
-                                        "type": "most_fields",
-                                        "fields": ["name", "description", "plot", "actors", "stars"]
-                                    }
-                                },
+                                "must": [
+                                    {
+                                        "multi_match": {
+                                            "query": q,
+                                            "type": "most_fields",
+                                            "fields": ["name", "description", "plot", "actors", "stars", "awards", "creators", "keywords", "director", "genres"]
+                                        }}, {
+                                        "range": {
+                                            "ratingValue": {
+                                                "gte": int(rf),
+                                                "lte": int(rt)
+                                            }
+                                        }}
+                                ],
                                 "filter": aggs_filter
                             }
                         },
@@ -94,11 +104,16 @@ def search():
         sug = res_sug["suggest"]["simple_phrase"][0]["options"]
 
     # print dumps(res, indent=4)
-    # print q, o, a
+    print q, o, a, r
 
     return render_template(
         'hits.html',
-        data=res["hits"]["hits"], q=q, o=o,
+        data=res["hits"]["hits"],
+        q=q,
+        o=o,
         aggs=res["aggregations"]["by_language"]["buckets"],
-        sug=sug
+        sug=sug,
+        rf=rf, rt=rt,
+        a=a,
+        total=res["hits"]["total"]
     )
