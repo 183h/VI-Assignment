@@ -16,18 +16,26 @@ def search():
     o = request.form.get('o', default="desc", type=str)
     a = request.form.get('a', default=None, type=str)
     r = request.form.get('r', default="", type=str)
+    b = request.form.get('b', default=None, type=str)
 
     es = Elasticsearch()
-    aggs_filter = {}
+    aggs_filter = []
     sug = {}
     unique_sug = set()
+    year_histogram = {}
 
     if a is not None:
-        aggs_filter = {
+        aggs_filter.append({
             "term": {
-                'country': a
+                'genres.keyword': a
             }
-        }
+        })
+    if b is not None:
+        aggs_filter.append({
+            "term": {
+                'stars.keyword': b
+            }
+        })
 
     rf, rt = r.split(" - ")
 
@@ -68,9 +76,21 @@ def search():
                             }
                         },
                         "aggs": {
-                            "by_language": {
+                            "by_genre": {
                                 "terms": {
-                                    "field": "country",
+                                    "field": "genres.keyword",
+                                    "size": 10
+                                }
+                            },
+                            "by_releaseYears": {
+                                "date_histogram": {
+                                    "field": "releaseDate",
+                                    "interval": "year"
+                                }
+                            },
+                            "by_stars": {
+                                "terms": {
+                                    "field": "stars.keyword",
                                     "size": 10
                                 }
                             }
@@ -136,17 +156,23 @@ def search():
         for s in sug:
             unique_sug.add(s["highlighted"])
 
-    # print dumps(res, indent=4)
-    print q, o, a, r
+    # prepare year histogram
+    for y in res["aggregations"]["by_releaseYears"]["buckets"]:
+        if y["doc_count"] != 0:
+            year = y["key_as_string"].split("-")
+            year_histogram[year[0]] = y["doc_count"]
 
     return render_template(
         'hits.html',
         data=res["hits"]["hits"],
         q=q,
         o=o,
-        aggs=res["aggregations"]["by_language"]["buckets"],
+        aggs=res["aggregations"]["by_genre"]["buckets"],
         sug=unique_sug,
         rf=rf, rt=rt,
         a=a,
-        total=res["hits"]["total"]
+        total=res["hits"]["total"],
+        yh=year_histogram,
+        aggs_stars=res["aggregations"]["by_stars"]["buckets"],
+        b=b
     )
