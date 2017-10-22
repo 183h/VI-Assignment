@@ -108,7 +108,6 @@ class Parser(object):
                 ret_type="element"
             )
             if genres is not None:
-                # json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
                 json_movie["genres"] = [genre.text.strip() for genre in genres]
 
             json_movie["description"] = self.findItem(
@@ -149,8 +148,7 @@ class Parser(object):
                 ret_type="element"
             )
             if stars is not None:
-                # json_movie["stars"] = " ".join([star.text.strip() for star in stars])
-                json_movie["stars"] = [star.text.strip() for star in stars]
+                json_movie["stars"] = [star.text.strip().replace(",", "") for star in stars]
 
             awards = self.findItem(
                 soup,
@@ -240,9 +238,6 @@ class Parser(object):
                 if release_date:
                     releaseDate = str(datetime.strptime(release_date.group(), "%d %B %Y")).split(" ")
                     json_movie["releaseDate"] = releaseDate[0]
-
-            # print dumps(json_movie, indent=4, ensure_ascii=False, encoding="utf-8")
-            # self.es.index(index="imdb", doc_type="movie", id=id_, body=dumps(json_movie, ensure_ascii=False, encoding="utf-8"))
 
             actions.append(
                 {
