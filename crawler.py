@@ -23,7 +23,10 @@ class Crawler(object):
         for url in self.unvisited_urls:
             print "Crawling {}...".format(url)
             self.visited_urls.add(url)
-            response = urlopen(url)
+            try:
+                response = urlopen(url)
+            except:
+                continue
 
             soup = BeautifulSoup(response.read(), 'lxml')
             links_soup = soup('a')
