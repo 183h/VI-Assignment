@@ -5,7 +5,7 @@ PUT imdb
       		"number_of_shards": 1,
       		"analysis": {
         		"analyzer": {
-          			"trigram": {
+          			"suggest": {
             			"type": "custom",
             			"tokenizer": "standard",
             			"filter": ["standard", "shingle"]
@@ -26,21 +26,33 @@ PUT imdb
       		"properties": {
 		        "name": {
 		        	"type": "text",
-		        	"analyzer" : "english"
+		        	"analyzer" : "english",
+                    "fields": {
+                        "suggest": {
+                            "type": "text",
+                            "analyzer": "suggest"
+                        }
+                    }
 		        },
         		"plot": {
         			"type": "text",
 		        	"analyzer" : "english",
 		        	"fields": {
-            			"trigram": {
+            			"suggest": {
               				"type": "text",
-              				"analyzer": "trigram"
+              				"analyzer": "suggest"
             			}
             		}
         		},
         		"genres": {
         			"type": "text",
-		        	"analyzer" : "english"
+		        	"analyzer" : "english",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword",
+                            "ignore_above": 256
+                        }
+                    }
         		},
         		"director": {
         			"type": "text",
@@ -56,7 +68,13 @@ PUT imdb
         		},
         		"stars": {
         			"type": "text",
-		        	"analyzer" : "english"
+		        	"analyzer" : "english",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword",
+                            "ignore_above": 256
+                        }
+                    }
         		},
         		"duration": {
         			"type": "text",
@@ -72,7 +90,13 @@ PUT imdb
         		},
         		"description": {
         			"type": "text",
-		        	"analyzer" : "english"
+		        	"analyzer" : "english",
+                    "fields": {
+                        "suggest": {
+                            "type": "text",
+                            "analyzer": "suggest"
+                        }
+                    }
         		},
 
         		"ratingValue": {
