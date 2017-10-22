@@ -20,6 +20,7 @@ def search():
     es = Elasticsearch()
     aggs_filter = {}
     sug = {}
+    unique_sug = set()
 
     if a is not None:
         aggs_filter = {
@@ -82,13 +83,43 @@ def search():
                             body={
                                 "suggest": {
                                     "text": q,
-                                    "simple_phrase": {
+                                    "name_sugg": {
                                         "phrase": {
-                                            "field": "plot.trigram",
+                                            "field": "name.suggest",
                                             "size": 10,
                                             "gram_size": 3,
                                             "direct_generator": [{
-                                                "field": "plot.trigram",
+                                                "field": "name.suggest",
+                                                "suggest_mode": "always"
+                                            }],
+                                            "highlight": {
+                                                "pre_tag": '<span style="background-color: yellow">',
+                                                "post_tag": "</span>"
+                                            }
+                                        }
+                                    },
+                                    "description_sugg": {
+                                        "phrase": {
+                                            "field": "description.suggest",
+                                            "size": 10,
+                                            "gram_size": 3,
+                                            "direct_generator": [{
+                                                "field": "description.suggest",
+                                                "suggest_mode": "always"
+                                            }],
+                                            "highlight": {
+                                                "pre_tag": '<span style="background-color: yellow">',
+                                                "post_tag": "</span>"
+                                            }
+                                        }
+                                    },
+                                    "plot_sugg": {
+                                        "phrase": {
+                                            "field": "plot.suggest",
+                                            "size": 10,
+                                            "gram_size": 3,
+                                            "direct_generator": [{
+                                                "field": "plot.suggest",
                                                 "suggest_mode": "always"
                                             }],
                                             "highlight": {
@@ -101,7 +132,9 @@ def search():
                             }
                             )
 
-        sug = res_sug["suggest"]["simple_phrase"][0]["options"]
+        sug = res_sug["suggest"]["name_sugg"][0]["options"] + res_sug["suggest"]["description_sugg"][0]["options"] + res_sug["suggest"]["plot_sugg"][0]["options"]
+        for s in sug:
+            unique_sug.add(s["highlighted"])
 
     # print dumps(res, indent=4)
     print q, o, a, r
@@ -112,7 +145,7 @@ def search():
         q=q,
         o=o,
         aggs=res["aggregations"]["by_language"]["buckets"],
-        sug=sug,
+        sug=unique_sug,
         rf=rf, rt=rt,
         a=a,
         total=res["hits"]["total"]
