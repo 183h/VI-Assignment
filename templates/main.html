@@ -17,7 +17,7 @@
 
 	<style type="text/css">
 		.bloc { display:inline-block; vertical-align:top; overflow:hidden; border:solid grey transparent 1px; }
-		.bloc select { padding:10px; margin:-5px -20px -5px -5px; width: 200px}
+		.bloc select { padding:10px; margin:-5px -20px -5px -5px; width: 300px}
 		#jumbo {
   			padding: 50px;
 		}
@@ -83,11 +83,24 @@
 
     	{% if aggs %}
     	<hr />
-    	<label> <b>Aggregation by country:</b> </label><br>
+    	<label> <b>Aggregation by genre:</b> </label><br>
     	<div class="bloc">
     		<select multiple name="a" size="12">
     	    	{% for ag in aggs %}
  					<li><option onclick="$('#f1').submit();" value="{{ ag['key'] }}" {% if a == ag['key'] %} selected {% endif %}>{{ ag["key"] }} ({{ ag["doc_count"] }})</option>
+    			{% endfor %}
+    		</select>
+    	</div>
+    	
+    	{% endif %}
+
+    	{% if aggs_stars %}
+    	<hr />
+    	<label> <b>Aggregation by stars:</b> </label><br>
+    	<div class="bloc">
+    		<select multiple name="b" size="12">
+    	    	{% for ag in aggs_stars %}
+ 					<li><option onclick="$('#f1').submit();" value="{{ ag['key'] }}" {% if b == ag['key'] %} selected {% endif %}>{{ ag["key"] }} ({{ ag["doc_count"] }})</option>
     			{% endfor %}
     		</select>
     	</div>
@@ -107,6 +120,14 @@
     </div>
     
     <div class="col">
+    	{% if yh %}
+    	<label> <b>Year release histogram:</b> </label><br>
+    	<ul>
+    		{% for year, count in yh.iteritems() %}
+ 					<li>{{ year }} ({{ count }})</li>
+    	    {% endfor %}
+    	</ul>
+    	{% endif %}    	
     </div>
   </div>
 </div>
