@@ -53,6 +53,8 @@
   <div class="row">
     <div class="col"></div>
     <div class="col" style="padding-top: 30px; padding-bottom: 20px">
+    		<a href="/" class="" role="button" style="float:right">Reset search</a>
+
 			<div class="input-group input-group-lg">
   				<span class="input-group-addon" id="i1">Search: </span>
   				<input type="text" class="form-control" aria-describedby="basic-addon1" name="q" value="{{ q }}">
@@ -105,13 +107,6 @@
     </div>
     
     <div class="col">
-    	Stats:
-
-    	<ul>
-  			{% for key, value in hit["highlight"].iteritems() %}
-  				<li><b>{{ key.title() }}</b> : {{ value[0]|safe }}</li>
-  			{% endfor %}
-		</ul>
     </div>
   </div>
 </div>
