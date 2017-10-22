@@ -108,7 +108,8 @@ class Parser(object):
                 ret_type="element"
             )
             if genres is not None:
-                json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
+                # json_movie["genres"] = ", ".join([genre.text.strip() for genre in genres])
+                json_movie["genres"] = [genre.text.strip() for genre in genres]
 
             json_movie["description"] = self.findItem(
                 soup,
@@ -148,7 +149,8 @@ class Parser(object):
                 ret_type="element"
             )
             if stars is not None:
-                json_movie["stars"] = " ".join([star.text.strip() for star in stars])
+                # json_movie["stars"] = " ".join([star.text.strip() for star in stars])
+                json_movie["stars"] = [star.text.strip() for star in stars]
 
             awards = self.findItem(
                 soup,
