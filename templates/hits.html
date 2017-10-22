@@ -8,9 +8,12 @@
     	<ul>
 			{% for hit in data %}
   				<li><b>Name:</b> {{ hit["_source"]["name"]}}</li>
+  				<li><b>Release date:</b> {{ hit["_source"]["releaseDate"]}}</li>
   				<li><b>Rating value:</b> {{ hit["_source"]["ratingValue"]}}</li>
-  				<li><b>Rating count:</b> {{ hit["_source"]["ratingCount"]}}</li>
-	
+  				<li><b>Director:</b> {{ hit["_source"]["director"]}}</li>
+  				<li><b>Stars:</b>{{ hit["_source"]["stars"]|join(', ') }}</li>
+  				<li><b>Description:</b> {{ hit["_source"]["description"]}}</li>
+				<br>
 				<ul>
   				{% for key, value in hit["highlight"].iteritems() %}
   					<li><b>{{ key.title() }}</b> : {{ value[0]|safe }}</li>
